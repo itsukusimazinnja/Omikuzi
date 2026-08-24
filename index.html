@@ -94,19 +94,12 @@
             box-shadow: 0 0 12px rgba(138, 158, 167, 0.4);
         }
 
-        .draw-btn:disabled {
-            border-color: #222222;
-            color: #555555;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
-
-        /* フェードイン表示エリア */
+        /* フェードイン・切り替え用エリア */
         .result-wrap {
             margin-top: 25px;
             display: none;
             opacity: 0;
-            transition: opacity 1.5s ease-in-out;
+            transition: opacity 0.5s ease-in-out;
         }
 
         .result-wrap.show {
@@ -162,7 +155,7 @@
         const introText = document.getElementById('intro-text');
         const container = document.getElementById('omikuji-container');
 
-        // 最初に出したいテロップの文章リスト（自由に変更可能）
+        // 最初に出したいテロップの文章リスト
         const storyLines = [
             "山と海に囲まれた村のはずれ。夕闇が支配する奥地。そんな秘境に侵入してしまった馬鹿者がいた。",
             "それは誰か？",
@@ -189,18 +182,15 @@
 
         function showNextLine() {
             if (lineIndex < storyLines.length) {
-                // 文字をセットしてフェードイン
                 introText.textContent = storyLines[lineIndex];
                 introText.classList.add('show-text');
 
-                // 2.5秒間表示した後、フェードアウトして次の文へ
                 setTimeout(() => {
                     introText.classList.remove('show-text');
                     lineIndex++;
-                    setTimeout(showNextLine, 1000); // 消えてから1秒後に次の文
+                    setTimeout(showNextLine, 1000);
                 }, 2500);
             } else {
-                // テロップがすべて終わったら、おみくじ枠をフェードイン
                 container.classList.add('show-container');
             }
         }
@@ -279,27 +269,38 @@
         const resultImg = document.getElementById('result-img');
         const resultText = document.getElementById('result-text');
 
+        let isFirstDraw = true;
+
         // ボタン押下時の処理
         drawBtn.addEventListener('click', () => {
-            alert('あなたも物好きですね…');
+            if (isFirstDraw) {
+                alert('あなたも物好きですね…');
+                isFirstDraw = false;
+            }
 
+            // ランダム抽選
             const randomImgIndex = Math.floor(Math.random() * omikujiData.length);
             const selectedItem = omikujiData[randomImgIndex];
 
             const randomTextIndex = Math.floor(Math.random() * selectedItem.texts.length);
             const selectedText = selectedItem.texts[randomTextIndex];
 
-            drawBtn.disabled = true;
-            drawBtn.textContent = '本日はお引き取りください。長居は危険です。';
-            notice.textContent = 'またの訪問をお待ちしております。背後を確認してお帰りください。';
+            // ボタンの表記と注釈を更新
+            drawBtn.textContent = 'もう一度おみくじを引いてみる';
+            notice.textContent = '何度引こうと結果は運命です。背後を確認してお帰りください。';
 
-            resultImg.src = selectedItem.img;
-            resultText.textContent = selectedText;
+            // 表示のサッと切り替え演出
+            resultWrap.classList.remove('show');
 
-            resultWrap.style.display = 'block';
             setTimeout(() => {
-                resultWrap.classList.add('show');
-            }, 50);
+                resultImg.src = selectedItem.img;
+                resultText.textContent = selectedText;
+                resultWrap.style.display = 'block';
+                
+                setTimeout(() => {
+                    resultWrap.classList.add('show');
+                }, 50);
+            }, 300);
         });
     });
 </script>
