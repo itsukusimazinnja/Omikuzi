@@ -13,31 +13,61 @@
             padding: 0;
             min-height: 100vh;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url('images/IMG_2418.jpeg');
+            background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('images/IMG_2418.jpeg');
             background-size: contain;
             background-position: center;
             background-repeat: no-repeat;
+            overflow-x: hidden;
         }
 
+        /* ノベル風テロップ表示エリア */
+        .intro-container {
+            max-width: 600px;
+            width: 85%;
+            margin-bottom: 25px;
+            text-align: center;
+            min-height: 80px; /* 文字が表示される領域を確保 */
+        }
+
+        .intro-text {
+            font-size: 1.1em;
+            color: #e0e0e0;
+            line-height: 1.8;
+            letter-spacing: 2px;
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
+            text-shadow: 0 0 8px rgba(0, 0, 0, 0.9);
+        }
+
+        .intro-text.show-text {
+            opacity: 1;
+        }
+
+        /* おみくじ本体エリア */
         .omikuji-container {
             text-align: center;
-            background-color: rgba(5, 5, 5, 0.4);
+            background-color: rgba(5, 5, 5, 0.5);
             border: 1px solid rgba(255, 255, 255, 0.2);
             padding: 40px 30px;
             max-width: 500px;
             width: 90%;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
             backdrop-filter: blur(2px);
 
-            /* フェードイン表示用の初期設定 */
+            /* 初期状態は非表示（フェードイン用） */
             opacity: 0;
-            transition: opacity 2s ease-in-out;
+            transform: translateY(10px);
+            transition: opacity 2s ease-in-out, transform 2s ease-in-out;
+            pointer-events: none; /* 表示されるまでクリック不可 */
         }
 
         .omikuji-container.show-container {
             opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
         }
 
         .title {
@@ -48,7 +78,7 @@
         }
 
         .draw-btn {
-            background-color: rgba(8, 8, 8, 0.6);
+            background-color: rgba(8, 8, 8, 0.7);
             color: #8a9ea7;
             border: 1px solid #555555;
             padding: 12px 30px;
@@ -61,7 +91,7 @@
         .draw-btn:hover {
             border-color: #8a9ea7;
             color: #ffffff;
-            box-shadow: 0 0 12px rgba(138, 158, 167, 0.3);
+            box-shadow: 0 0 12px rgba(138, 158, 167, 0.4);
         }
 
         .draw-btn:disabled {
@@ -108,6 +138,12 @@
 </head>
 <body>
 
+<!-- ノベル風テロップ表示部 -->
+<div class="intro-container">
+    <div id="intro-text" class="intro-text"></div>
+</div>
+
+<!-- おみくじコンテナ -->
 <div id="omikuji-container" class="omikuji-container">
     <div class="title">【 白狼神社で運試し 】</div>
 
@@ -123,13 +159,57 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
+        const introText = document.getElementById('intro-text');
         const container = document.getElementById('omikuji-container');
 
-        // ページを開いてから1.5秒遅れて枠を表示
-        setTimeout(() => {
-            container.classList.add('show-container');
-        }, 1500);
+        // 最初に出したいテロップの文章リスト（自由に変更可能）
+        const storyLines = [
+            "山と海に囲まれた村のはずれ。夕闇が支配する奥地。そんな秘境に侵入してしまった馬鹿者がいた。",
+            "それは誰か？",
+            "お前さんだよ。",
+            "ここは村とって最も神聖な地。神職の一族を除いて，一般の人々は参詣することすら禁じられておる。",
+            "故にここは島きっての禁足地とされておる。",
+            "ただし参詣が許されておる日が一日だけある。",
+            "十月十日，天啓の日じゃ。その日、村の衆は奥地に向かい、その地に宿されたお告げを持ち帰る。",
+            "ところで今日は何日だい？",
+            "十月九日だねぇ。ちょうど1日前。ところでお前さんはなんでこんな場所に勝手に来ているんだい？",
+            "何をするつもりだい？",
+            "お告げを盗むつもりかい？",
+            "さぁさぁここまで訪ねてしまったなら仕方がない。せいぜいこの奥地を荒らせばいいよ。",
+            "ついには太陽が沈んで月が昇り始めた。",
+            "お前さん。目的地に到着したようじゃな。",
+            "何をするつもりか知らんが，くれぐれも罰当たりなことはせんといてくれよ。",
+            "特にお告げ。これだけは触れてはならん。それだけ肝に銘じておけば火炙りの刑で助かるじゃろう。",
+            "『白狼神社』＿それはこの村を守る異形の神が住まう社。",
+            "白狼神社のおみくじ。とくとご覧あれ"
+        ];
 
+        // テロップを順番に表示する処理
+        let lineIndex = 0;
+
+        function showNextLine() {
+            if (lineIndex < storyLines.length) {
+                // 文字をセットしてフェードイン
+                introText.textContent = storyLines[lineIndex];
+                introText.classList.add('show-text');
+
+                // 2.5秒間表示した後、フェードアウトして次の文へ
+                setTimeout(() => {
+                    introText.classList.remove('show-text');
+                    lineIndex++;
+                    setTimeout(showNextLine, 1000); // 消えてから1秒後に次の文
+                }, 2500);
+            } else {
+                // テロップがすべて終わったら、おみくじ枠をフェードイン
+                container.classList.add('show-container');
+            }
+        }
+
+        // ページ読み込み1秒後にテロップ開始
+        setTimeout(showNextLine, 1000);
+
+
+        // おみくじデータ
         const omikujiData = [
             {
                 img: 'images/IMG_2421.jpeg', // 大吉
@@ -203,24 +283,19 @@
         drawBtn.addEventListener('click', () => {
             alert('あなたも物好きですね…');
 
-            // 1. 運勢（画像）をランダム選出
             const randomImgIndex = Math.floor(Math.random() * omikujiData.length);
             const selectedItem = omikujiData[randomImgIndex];
 
-            // 2. 文章をランダム選出
             const randomTextIndex = Math.floor(Math.random() * selectedItem.texts.length);
             const selectedText = selectedItem.texts[randomTextIndex];
 
-            // 3. このセッション（その回の訪問）ではボタンを無効化
             drawBtn.disabled = true;
             drawBtn.textContent = '本日はお引き取りください。長居は危険です。';
             notice.textContent = 'またの訪問をお待ちしております。背後を確認してお帰りください。';
 
-            // 結果をセット
             resultImg.src = selectedItem.img;
             resultText.textContent = selectedText;
 
-            // フェードイン表示
             resultWrap.style.display = 'block';
             setTimeout(() => {
                 resultWrap.classList.add('show');
