@@ -1,2 +1,233 @@
-# Omikuzi
-おみくじゲーム
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>白狼神籤</title>
+    <style>
+        body {
+            background-color: #000000;
+            color: #dcdcdc;
+            font-family: "MS P明朝", "MS Mincho", "Hiragino Mincho ProN", serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url('images/IMG_2418.jpeg');
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .omikuji-container {
+            text-align: center;
+            background-color: rgba(5, 5, 5, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 40px 30px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(2px);
+
+            /* フェードイン表示用の初期設定 */
+            opacity: 0;
+            transition: opacity 2s ease-in-out;
+        }
+
+        .omikuji-container.show-container {
+            opacity: 1;
+        }
+
+        .title {
+            font-size: 1.2em;
+            color: #ffffff;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+        }
+
+        .draw-btn {
+            background-color: rgba(8, 8, 8, 0.6);
+            color: #8a9ea7;
+            border: 1px solid #555555;
+            padding: 12px 30px;
+            font-family: inherit;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .draw-btn:hover {
+            border-color: #8a9ea7;
+            color: #ffffff;
+            box-shadow: 0 0 12px rgba(138, 158, 167, 0.3);
+        }
+
+        .draw-btn:disabled {
+            border-color: #222222;
+            color: #555555;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* フェードイン表示エリア */
+        .result-wrap {
+            margin-top: 25px;
+            display: none;
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
+        }
+
+        .result-wrap.show {
+            opacity: 1;
+        }
+
+        .result-img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* 画像下の説明文スタイル */
+        .result-text {
+            margin-top: 15px;
+            font-size: 0.9em;
+            color: #b0c4de;
+            line-height: 1.6;
+            text-align: left;
+            border-top: 1px dashed #333333;
+            padding-top: 15px;
+        }
+
+        .notice {
+            font-size: 0.85em;
+            color: #888888;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="omikuji-container" class="omikuji-container">
+    <div class="title">【 白狼神社で運試し 】</div>
+
+    <button id="draw-btn" class="draw-btn">おみくじを引いてみる</button>
+    <div id="notice" class="notice"></div>
+
+    <!-- 結果表示（画像＋説明文） -->
+    <div id="result-wrap" class="result-wrap">
+        <img id="result-img" class="result-img" src="" alt="おみくじの結果">
+        <div id="result-text" class="result-text"></div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const container = document.getElementById('omikuji-container');
+
+        // ページを開いてから1.5秒遅れて枠を表示
+        setTimeout(() => {
+            container.classList.add('show-container');
+        }, 1500);
+
+        const omikujiData = [
+            {
+                img: 'images/IMG_2421.jpeg', // 大吉
+                texts: [
+                    '【大吉】今日のあなたは一味違う。風による災害も水による惨劇も今日のあなたとは無縁です。こんなに運が良いのなら普段見えないものが見えるかも。',
+                    '【大吉】あなたのような器の小さい人間にこれだけの運はもはや悪影響でしょう。他人に優しくしてその運を分配してあげてください。きっと喜ばれますよ。',
+                    '【大吉】嬉しいですか？実際のところ、運勢などただのまやかしです。今日の運はこれを出すことでもう尽きました。油断せずに一歩ずつ慎重に進みましょう。きっと遅刻できます。',
+                    '【大吉】大は小を兼ねる。今日のあなたは何事も上手くいくでしょう。けれども量より質とも世間では言いますので、単に運が大きいだけでは保証できませんね。訂正します。大吉以上の意味は大吉にありません、と。',
+                    '【大吉】今日が人生の最盛期です。つまり明日は最盛期ではありません。もう一度大吉を引けば良いって？毎回大吉だとありがたさがわからなくなるんですよ。親を大切に。'
+                ]
+            },
+            {
+                img: 'images/IMG_2422.jpeg', // 吉
+                texts: [
+                    '【吉】まずまずの運勢。けれど油断は禁物。特にお金に関しては要注意。財布に穴が空いていないか要確認。',
+                    '【吉】あれ？普通の運勢でしたね。きっとあなたの人生は灰色だったのでしょう。今日も変わらず灰色のようです。',
+                    '【吉】金運が今日はとても良いようです。賭け事に身を委ねてみるのはいかがでしょうか。負ける未来はありません。勝つ未来もないけれど。',
+                    '【吉】賭け事に向いた運勢です。絶対に負けない賭け事に挑戦して時間を浪費してみましょう。きっと新しい友達ができるはずです。',
+                    '【吉】悪くはないけれど良いとも言えない。まさにあなた自身のような運勢です。運勢とシンクロせずに、真面目に働きましょう。'
+                ]
+            },
+            {
+                img: 'images/IMG_2425.jpeg', // 小吉
+                texts: [
+                    '【小吉】小銭ほどの幸運はすぐにこぼれ落ちます。今あるものを大事にせず、未知の事物を探しに行きましょう。',
+                    '【小吉】身の丈に合った運勢ですね。とにかく今日は何かと身の丈にあった一日になるようです。楽しい夢は考えずに目の前の作業に目を向けましょう。',
+                    '【小吉】まずまずの運勢ですね。大いに勝つこともなく喜劇的に負けることもない。まさに一般市民の人生を体現したかのような采配です。',
+                    '【小吉】一見見栄えのしない運勢ですが、遠くから見ると…？ただの小吉ですね。比喩や誇張に騙されないよう気をつけて、夢も希望のもない本当の現実を見てみましょう。',
+                    '【小吉】そこそこの運勢です。けれども今の私は気分が良いので、大吉以上の運勢でしょう。強いていうなら他人による恩恵を自分の功績だと思い込まないことですね。あなたに言ってるんですよ？'
+                ]
+            },
+            {
+                img: 'images/IMG_2423.jpeg', // 末吉
+                texts: [
+                    '【末吉】残り物には福がある。末の福ほど良いものはありません。という考え方もできるけれど、残り物自体には価値はありません。だって誰も要らなかったのですから。',
+                    '【末吉】よく知らない運勢が来た！と思っていたのではないでしょうか。そうです、末吉は本当のところ小吉よりも良いのでしょうか。分かりませんよね。ちなみにあなたもそんな感じで周りに思われていますよ。',
+                    '【末吉】あなたの今日の運勢はただの末吉です。ちなみにあなたの娘はなんと大吉です。え？娘なんていないって？結婚してないって？だから末吉なんですね分かります。',
+                    '【末吉】がっかりしましたか？内心がっかりしましたよね。その気持ちを大切にしてください。世内そんなに上手くいくことなどありません。勝手に失望するなら、何も考えずにぼぼーっと過ごす方が吉ですよ。',
+                    '【末吉】普通。あなたみたいですね。'
+                ]
+            },
+            {
+                img: 'images/IMG_2424.jpeg', // 凶
+                texts: [
+                    '【凶】逆に運が良いのかも。とりあえず今日のあなたはいつもと違う。その事実を受け入れて慎ましく過ごしましょう。',
+                    '【凶】おお。別に凶ばかり入れているわけではありませんよ。ただ今日のあなたが凶のあなただっただけで。運勢はそんなに良くないのでとりあえず顔洗って来たらどうですか？涙流しましょう。',
+                    '【凶】今日は何かとうまくいかない一日になりそうですね。特に時間は要注意。今みたいな意味のわからない事に時間を使うだけのような悲しい一日になりそうです。',
+                    '【凶】大凶じゃないだけマシですよ。といのは嘘で、普通に悲しいですよね。ああ可哀想で面白い。同僚にも馬鹿にされることのないよう、言動には気をつけてくださいね。',
+                    '【凶】あなたは凶です。その事実をまずは受け入れることから始めましょう。大吉の人はそんなことしなくて良いのに…今日は大変ですね。'
+                ]
+            },
+            {
+                img: 'images/IMG_2420.jpeg', // 大凶
+                texts: [
+                    '【大凶】早く寝ましょう。起きていれば常に嫌な目に遭います。今日は"そういう日"だと受け入れて早く寝ましょう。',
+                    '【大凶】妖怪を探すなら今日が絶好の日です。真夜中の柳の木の裏で童謡を歌いましょう。妖怪が本当に現れても動揺しないようにして下さい。あなたが動揺すれば妖怪は喜んでしまいますから。',
+                    '【大凶】現実と夢の境界があやふやで今日は想像以上のことが沢山起きるでしょう。一方で夢にも現実が流れ込んでしまうので、後悔や嫉妬心はできるだけ消化しておきましょう。でないと悪夢を見ます。',
+                    '【大凶】ちなみにあなたの家族も大凶です。自分だけでなく家族の不幸も気をつけながら一日を乗り切りましょう。かき氷は食べてはいけません。不幸が露出します。',
+                    '【大凶】まず安心して下さい。自分が今日は大凶であったと言うことを知れたのは一つの幸運です。自分の穢れを祓うために朝風呂に入ることをお勧めします。それと押し入れの確認をして下さい。誰かいるかも。'
+                ]
+            }
+        ];
+
+        const drawBtn = document.getElementById('draw-btn');
+        const notice = document.getElementById('notice');
+        const resultWrap = document.getElementById('result-wrap');
+        const resultImg = document.getElementById('result-img');
+        const resultText = document.getElementById('result-text');
+
+        // ボタン押下時の処理
+        drawBtn.addEventListener('click', () => {
+            alert('あなたも物好きですね…');
+
+            // 1. 運勢（画像）をランダム選出
+            const randomImgIndex = Math.floor(Math.random() * omikujiData.length);
+            const selectedItem = omikujiData[randomImgIndex];
+
+            // 2. 文章をランダム選出
+            const randomTextIndex = Math.floor(Math.random() * selectedItem.texts.length);
+            const selectedText = selectedItem.texts[randomTextIndex];
+
+            // 3. このセッション（その回の訪問）ではボタンを無効化
+            drawBtn.disabled = true;
+            drawBtn.textContent = '本日はお引き取りください。長居は危険です。';
+            notice.textContent = 'またの訪問をお待ちしております。背後を確認してお帰りください。';
+
+            // 結果をセット
+            resultImg.src = selectedItem.img;
+            resultText.textContent = selectedText;
+
+            // フェードイン表示
+            resultWrap.style.display = 'block';
+            setTimeout(() => {
+                resultWrap.classList.add('show');
+            }, 50);
+        });
+    });
+</script>
+
+</body>
+</html>
