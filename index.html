@@ -16,7 +16,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('images/IMG_2418.jpeg');
+            background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('./IMG_2418.jpeg');
             background-size: contain;
             background-position: center;
             background-repeat: no-repeat;
@@ -29,7 +29,7 @@
             width: 85%;
             margin-bottom: 25px;
             text-align: center;
-            min-height: 80px; /* 文字が表示される領域を確保 */
+            min-height: 80px;
         }
 
         .intro-text {
@@ -49,9 +49,9 @@
         /* おみくじ本体エリア */
         .omikuji-container {
             text-align: center;
-            background-color: rgba(5, 5, 5, 0.5);
+            background-color: rgba(5, 5, 5, 0.6);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 40px 30px;
+            padding: 30px 25px;
             max-width: 500px;
             width: 90%;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
@@ -61,7 +61,7 @@
             opacity: 0;
             transform: translateY(10px);
             transition: opacity 2s ease-in-out, transform 2s ease-in-out;
-            pointer-events: none; /* 表示されるまでクリック不可 */
+            pointer-events: none;
         }
 
         .omikuji-container.show-container {
@@ -78,7 +78,7 @@
         }
 
         .draw-btn {
-            background-color: rgba(8, 8, 8, 0.7);
+            background-color: rgba(8, 8, 8, 0.8);
             color: #8a9ea7;
             border: 1px solid #555555;
             padding: 12px 30px;
@@ -86,6 +86,7 @@
             font-size: 1em;
             cursor: pointer;
             transition: all 0.3s ease;
+            margin-bottom: 10px;
         }
 
         .draw-btn:hover {
@@ -94,24 +95,23 @@
             box-shadow: 0 0 12px rgba(138, 158, 167, 0.4);
         }
 
-        /* フェードイン・切り替え用エリア */
+        /* 画像＋結果テキストの表示エリア */
         .result-wrap {
-            margin-top: 25px;
-            display: none;
-            opacity: 0;
-            transition: opacity 0.5s ease-in-out;
+            margin-top: 15px;
+            opacity: 1;
+            transition: opacity 0.4s ease-in-out;
         }
 
-        .result-wrap.show {
-            opacity: 1;
+        .result-wrap.fade-out {
+            opacity: 0;
         }
 
         .result-img {
             max-width: 100%;
             height: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        /* 画像下の説明文スタイル */
         .result-text {
             margin-top: 15px;
             font-size: 0.9em;
@@ -120,12 +120,13 @@
             text-align: left;
             border-top: 1px dashed #333333;
             padding-top: 15px;
+            display: none; /* 引く前は非表示 */
         }
 
         .notice {
             font-size: 0.85em;
             color: #888888;
-            margin-top: 15px;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -141,13 +142,14 @@
     <div class="title">【 白狼神社で運試し 】</div>
 
     <button id="draw-btn" class="draw-btn">おみくじを引いてみる</button>
-    <div id="notice" class="notice"></div>
 
-    <!-- 結果表示（画像＋説明文） -->
+    <!-- 画像＋結果エリア（初期状態はIMG_2418を表示） -->
     <div id="result-wrap" class="result-wrap">
-        <img id="result-img" class="result-img" src="" alt="おみくじの結果">
+        <img id="result-img" class="result-img" src="./IMG_2418.jpeg" alt="白狼神社">
         <div id="result-text" class="result-text"></div>
     </div>
+
+    <div id="notice" class="notice"></div>
 </div>
 
 <script>
@@ -155,7 +157,6 @@
         const introText = document.getElementById('intro-text');
         const container = document.getElementById('omikuji-container');
 
-        // 最初に出したいテロップの文章リスト
         const storyLines = [
             "山と海に囲まれた村のはずれ。夕闇が支配する奥地。そんな秘境に侵入してしまった馬鹿者がいた。",
             "それは誰か？",
@@ -177,7 +178,6 @@
             "白狼神社のおみくじ。とくとご覧あれ"
         ];
 
-        // テロップを順番に表示する処理
         let lineIndex = 0;
 
         function showNextLine() {
@@ -195,14 +195,12 @@
             }
         }
 
-        // ページ読み込み1秒後にテロップ開始
         setTimeout(showNextLine, 1000);
 
-
-        // おみくじデータ
+        // おみくじデータ（同階層の画像を指定）
         const omikujiData = [
             {
-                img: 'images/IMG_2421.jpeg', // 大吉
+                img: './IMG_2421.jpeg', // 大吉
                 texts: [
                     '【大吉】今日のあなたは一味違う。風による災害も水による惨劇も今日のあなたとは無縁です。こんなに運が良いのなら普段見えないものが見えるかも。',
                     '【大吉】あなたのような器の小さい人間にこれだけの運はもはや悪影響でしょう。他人に優しくしてその運を分配してあげてください。きっと喜ばれますよ。',
@@ -212,7 +210,7 @@
                 ]
             },
             {
-                img: 'images/IMG_2422.jpeg', // 吉
+                img: './IMG_2422.jpeg', // 吉
                 texts: [
                     '【吉】まずまずの運勢。けれど油断は禁物。特にお金に関しては要注意。財布に穴が空いていないか要確認。',
                     '【吉】あれ？普通の運勢でしたね。きっとあなたの人生は灰色だったのでしょう。今日も変わらず灰色のようです。',
@@ -222,7 +220,7 @@
                 ]
             },
             {
-                img: 'images/IMG_2425.jpeg', // 小吉
+                img: './IMG_2425.jpeg', // 小吉
                 texts: [
                     '【小吉】小銭ほどの幸運はすぐにこぼれ落ちます。今あるものを大事にせず、未知の事物を探しに行きましょう。',
                     '【小吉】身の丈に合った運勢ですね。とにかく今日は何かと身の丈にあった一日になるようです。楽しい夢は考えずに目の前の作業に目を向けましょう。',
@@ -232,7 +230,7 @@
                 ]
             },
             {
-                img: 'images/IMG_2423.jpeg', // 末吉
+                img: './IMG_2423.jpeg', // 末吉
                 texts: [
                     '【末吉】残り物には福がある。末の福ほど良いものはありません。という考え方もできるけれど、残り物自体には価値はありません。だって誰も要らなかったのですから。',
                     '【末吉】よく知らない運勢が来た！と思っていたのではないでしょうか。そうです、末吉は本当のところ小吉よりも良いのでしょうか。分かりませんよね。ちなみにあなたもそんな感じで周りに思われていますよ。',
@@ -242,7 +240,7 @@
                 ]
             },
             {
-                img: 'images/IMG_2424.jpeg', // 凶
+                img: './IMG_2424.jpeg', // 凶
                 texts: [
                     '【凶】逆に運が良いのかも。とりあえず今日のあなたはいつもと違う。その事実を受け入れて慎ましく過ごしましょう。',
                     '【凶】おお。別に凶ばかり入れているわけではありませんよ。ただ今日のあなたが凶のあなただっただけで。運勢はそんなに良くないのでとりあえず顔洗って来たらどうですか？涙流しましょう。',
@@ -252,7 +250,7 @@
                 ]
             },
             {
-                img: 'images/IMG_2420.jpeg', // 大凶
+                img: './IMG_2420.jpeg', // 大凶
                 texts: [
                     '【大凶】早く寝ましょう。起きていれば常に嫌な目に遭います。今日は"そういう日"だと受け入れて早く寝ましょう。',
                     '【大凶】妖怪を探すなら今日が絶好の日です。真夜中の柳の木の裏で童謡を歌いましょう。妖怪が本当に現れても動揺しないようにして下さい。あなたが動揺すれば妖怪は喜んでしまいますから。',
@@ -271,36 +269,31 @@
 
         let isFirstDraw = true;
 
-        // ボタン押下時の処理
         drawBtn.addEventListener('click', () => {
             if (isFirstDraw) {
                 alert('あなたも物好きですね…');
                 isFirstDraw = false;
             }
 
-            // ランダム抽選
             const randomImgIndex = Math.floor(Math.random() * omikujiData.length);
             const selectedItem = omikujiData[randomImgIndex];
 
             const randomTextIndex = Math.floor(Math.random() * selectedItem.texts.length);
             const selectedText = selectedItem.texts[randomTextIndex];
 
-            // ボタンの表記と注釈を更新
-            drawBtn.textContent = 'もう一度おみくじを引いてみる';
-            notice.textContent = '何度引こうと結果は運命です。背後を確認してお帰りください。';
-
-            // 表示のサッと切り替え演出
-            resultWrap.classList.remove('show');
+            // フェードアウトさせてから画像を差し替える演出
+            resultWrap.classList.add('fade-out');
 
             setTimeout(() => {
                 resultImg.src = selectedItem.img;
                 resultText.textContent = selectedText;
-                resultWrap.style.display = 'block';
-                
-                setTimeout(() => {
-                    resultWrap.classList.add('show');
-                }, 50);
-            }, 300);
+                resultText.style.display = 'block'; // 結果テキストを表示
+
+                drawBtn.textContent = 'もう一度おみくじを引いてみる';
+                notice.textContent = '何度引こうと結果は運命です。背後を確認してお帰りください。';
+
+                resultWrap.classList.remove('fade-out');
+            }, 400);
         });
     });
 </script>
