@@ -7,7 +7,7 @@
     <style>
         * {
             box-sizing: border-box;
-            user-select: none; /* テキスト選択を無効化してタップしやすく */
+            user-select: none;
         }
 
         body {
@@ -21,44 +21,46 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            /* 背景画像として画面全体に配置 */
             background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('./IMG_2418.jpeg');
-            background-size: contain;
+            background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            overflow-x: hidden;
+            overflow: hidden;
             cursor: pointer;
+            position: relative;
         }
 
-        /* ノベル風テキスト表示エリア */
+        /* ノベル風メッセージウィンドウ（画面下部に配置） */
         .intro-container {
-            max-width: 600px;
-            width: 85%;
-            margin-bottom: 25px;
-            text-align: center;
-            min-height: 120px;
+            position: absolute;
+            bottom: 30px;
+            width: 90%;
+            max-width: 650px;
+            min-height: 140px;
+            background-color: rgba(0, 0, 0, 0.82);
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            border-radius: 6px;
+            padding: 20px 25px;
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.9);
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background-color: rgba(0, 0, 0, 0.65);
-            padding: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.9);
-            border-radius: 4px;
+            justify-content: space-between;
+            z-index: 10;
         }
 
         .intro-text {
-            font-size: 1.05em;
-            color: #e0e0e0;
+            font-size: 1.1em;
+            color: #f0f0f0;
             line-height: 1.8;
             letter-spacing: 2px;
-            text-shadow: 0 0 8px rgba(0, 0, 0, 0.9);
-            transition: opacity 0.3s ease;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
+            transition: opacity 0.2s ease;
         }
 
         .tap-prompt {
-            margin-top: 15px;
-            font-size: 0.8em;
+            text-align: right;
+            font-size: 0.85em;
             color: #8a9ea7;
             letter-spacing: 1px;
             animation: blink 1.5s infinite;
@@ -69,20 +71,21 @@
             50% { opacity: 1; }
         }
 
-        /* おみくじ本体エリア */
+        /* おみくじ本体エリア（セリフ終了後に表示） */
         .omikuji-container {
             text-align: center;
-            background-color: rgba(5, 5, 5, 0.7);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background-color: rgba(5, 5, 5, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.25);
             padding: 30px 25px;
             max-width: 500px;
             width: 90%;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(2px);
-            display: none; /* 初期状態は非表示 */
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(4px);
+            display: none;
             opacity: 0;
             transform: translateY(10px);
             transition: opacity 1.5s ease-in-out, transform 1.5s ease-in-out;
+            z-index: 5;
         }
 
         .omikuji-container.show-container {
@@ -153,7 +156,7 @@
 </head>
 <body>
 
-<!-- ノベル風テキスト表示部 -->
+<!-- ノベル風メッセージウィンドウ -->
 <div id="intro-container" class="intro-container">
     <div id="intro-text" class="intro-text"></div>
     <div id="tap-prompt" class="tap-prompt">タップして進む ▼</div>
@@ -177,7 +180,6 @@
     document.addEventListener('DOMContentLoaded', () => {
         const introContainer = document.getElementById('intro-container');
         const introText = document.getElementById('intro-text');
-        const tapPrompt = document.getElementById('tap-prompt');
         const container = document.getElementById('omikuji-container');
 
         const storyLines = [
@@ -204,12 +206,9 @@
         let lineIndex = 0;
         let storyFinished = false;
 
-        // 最初のセリフをセット
         introText.textContent = storyLines[0];
 
-        // 画面全体タップで進行
         document.body.addEventListener('click', (e) => {
-            // おみくじボタンを押したときはストーリー進行処理をスキップ
             if (e.target.id === 'draw-btn') return;
 
             if (!storyFinished) {
@@ -219,9 +218,8 @@
                     setTimeout(() => {
                         introText.textContent = storyLines[lineIndex];
                         introText.style.opacity = '1';
-                    }, 150);
+                    }, 120);
                 } else {
-                    // ストーリー終了時
                     storyFinished = true;
                     introContainer.style.display = 'none';
                     container.classList.add('show-container');
@@ -230,7 +228,6 @@
             }
         });
 
-        // おみくじデータ
         const omikujiData = [
             {
                 img: './IMG_2421.jpeg',
@@ -332,3 +329,4 @@
 
 </body>
 </html>
+            
